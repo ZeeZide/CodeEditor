@@ -21,11 +21,14 @@ CodeEditor then packages things up for SwiftUI.
 
 Example usage in 
 [SVG Shaper for SwiftUI](https://zeezide.de/en/products/svgshaper/)
-(used for editing
+(used for editing SVG and Swift source):
+
 ![SVG Shaper Screenshot](https://pbs.twimg.com/media/E0ydNH9XEAQ-USY?format=png)
-(Shaper is not using Highlightr, but is otherwise quite similar).
+
+(Shaper is not actually using Highlightr, but is otherwise quite similar).
 
 Highlightr example:
+
 ![Highlight Example](https://raw.githubusercontent.com/raspu/Highlightr/master/coding.gif)
 
 
