@@ -34,6 +34,24 @@ final class UXCodeTextView: UXTextView {
     return textStorage as? CodeAttributedString
   }
   
+  enum IndentStyle: Hashable {
+    case none
+    case softTab(width: Int)
+    case tab(width: Int)
+  }
+  
+  var isSmartIndentEnabled = true
+  var isAutoPairEnabled    : Bool { return !autoPairCompletion.isEmpty }
+  var indentStyle          = IndentStyle.softTab(width: 2)
+  var autoPairCompletion   : [ ( character : Character, pair : Character) ] = [
+    ( "("  , ")"  ),
+    ( "["  , "]"  ),
+    ( "{"  , "}"  ),
+    ( "\"" , "\"" ),
+    ( "'"  , "'"  ),
+    ( "`"  , "`"  )
+  ]
+  
   var language : CodeEditor.Language? {
     set {
       guard hlTextStorage?.language != newValue?.rawValue else { return }
@@ -130,6 +148,27 @@ final class UXCodeTextView: UXTextView {
   }
   
   
+  #if os(macOS)
+    // MARK: - Smarts as shown in https://github.com/naoty/NTYSmartTextView
+    
+    override func insertNewline(_ sender: Any?) {
+      guard isSmartIndentEnabled else { return super.insertNewline(sender) }
+      
+      let currentLine = self.currentLine
+      let wsPrefix = currentLine.prefix(while: {
+        guard let scalar = $0.unicodeScalars.first else { return false }
+        return CharacterSet.whitespaces.contains(scalar) // yes, yes
+      })
+      
+      super.insertNewline(sender)
+      
+      if !wsPrefix.isEmpty {
+        insertText(String(wsPrefix), replacementRange: selectedRange())
+      }
+    }
+  #endif
+  
+
   // MARK: - Themes
   
   @discardableResult

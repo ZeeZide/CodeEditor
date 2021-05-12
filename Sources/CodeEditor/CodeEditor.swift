@@ -114,6 +114,8 @@ public struct CodeEditor: View {
     
     /// Whether the displayed content should be selectable by the user.
     public static let selectable = Flags(rawValue: 1 << 1)
+    
+    public static let smartIndent = Flags(rawValue: 1 << 2)
   }
   
   /**
