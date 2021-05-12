@@ -118,6 +118,11 @@ public struct CodeEditor: View {
     public static let smartIndent = Flags(rawValue: 1 << 2)
   }
   
+  @frozen public enum IndentStyle: Equatable {
+    case system
+    case softTab(width: Int)
+  }
+
   /**
    * Configures a CodeEditor View with the given parameters.
    *

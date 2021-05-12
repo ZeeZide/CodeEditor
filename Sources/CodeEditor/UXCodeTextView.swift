@@ -34,15 +34,16 @@ final class UXCodeTextView: UXTextView {
     return textStorage as? CodeAttributedString
   }
   
-  enum IndentStyle: Hashable {
-    case none
-    case softTab(width: Int)
-    case tab(width: Int)
+  var isSmartIndentEnabled = true
+
+  var indentStyle          = CodeEditor.IndentStyle.system {
+    didSet {
+      guard oldValue != indentStyle else { return }
+      reindent(oldStyle: oldValue)
+    }
   }
   
-  var isSmartIndentEnabled = true
   var isAutoPairEnabled    : Bool { return !autoPairCompletion.isEmpty }
-  var indentStyle          = IndentStyle.softTab(width: 2)
   var autoPairCompletion   : [ ( character : Character, pair : Character) ] = [
     ( "("  , ")"  ),
     ( "["  , "]"  ),
@@ -166,8 +167,21 @@ final class UXCodeTextView: UXTextView {
         insertText(String(wsPrefix), replacementRange: selectedRange())
       }
     }
+    
+    override func insertTab(_ sender: Any?) {
+      guard case .softTab(let width) = indentStyle else {
+        return super.insertTab(sender)
+      }
+      super.insertText(String(repeating: " ", count: width),
+                       replacementRange: selectedRange())
+    }
   #endif
   
+  private func reindent(oldStyle: CodeEditor.IndentStyle) {
+    // - walk over the lines, strip and count the whitespaces and do something
+    //   clever :-)
+  }
+
 
   // MARK: - Themes
   
