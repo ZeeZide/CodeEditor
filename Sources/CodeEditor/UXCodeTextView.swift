@@ -172,6 +172,55 @@ protocol UXCodeTextViewDelegate: UXTextViewDelegate {
   var fontSize  : CGFloat? { get set }
 }
 
+// MARK: - Smarts as shown in https://github.com/naoty/NTYSmartTextView
+
+extension UXTextView {
+  
+  fileprivate var swiftSelectedRange : Range<String.Index> {
+    let s = self.string
+    guard !s.isEmpty else { return s.startIndex..<s.startIndex }
+    #if os(macOS)
+      guard let selectedRange = Range(self.selectedRange(), in: s) else {
+        assertionFailure("Could not convert the selectedRange?")
+        return s.startIndex..<s.startIndex
+      }
+    #else
+      guard let selectedRange = Range(self.selectedRange, in: s) else {
+        assertionFailure("Could not convert the selectedRange?")
+        return s.startIndex..<s.startIndex
+      }
+    #endif
+    return selectedRange
+  }
+  
+  fileprivate var currentLine: String {
+    let s = self.string
+    return String(s[s.lineRange(for: swiftSelectedRange)])
+  }
+  
+  fileprivate var isEndOfLine : Bool {
+    let ( _, isEnd ) = getStartOrEndOfLine()
+    return isEnd
+  }
+  fileprivate var isStartOrEndOfLine : Bool {
+    let ( isStart, isEnd ) = getStartOrEndOfLine()
+    return isStart || isEnd
+  }
+  
+  fileprivate func getStartOrEndOfLine() -> ( isStart: Bool, isEnd: Bool ) {
+    let s             = self.string
+    let selectedRange = self.swiftSelectedRange
+    var lineStart = s.startIndex, lineEnd = s.endIndex, contentEnd = s.endIndex
+    string.getLineStart(&lineStart, end: &lineEnd, contentsEnd: &contentEnd,
+                        for: selectedRange)
+    return ( isStart : selectedRange.lowerBound == lineStart,
+             isEnd   : selectedRange.lowerBound == lineEnd )
+  }
+}
+
+
+// MARK: - UXKit
+
 #if os(macOS)
 
   extension NSTextView {
