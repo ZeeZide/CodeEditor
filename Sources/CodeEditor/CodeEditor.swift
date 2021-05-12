@@ -22,7 +22,7 @@ import Highlightr
  *         }
  *     }
  *
- * If it should act as an actual editor, pass it `Binding`:
+ * If it should act as an actual editor, pass in a `Binding`:
  *
  *     struct ContentView: View {
  *

@@ -40,7 +40,8 @@ The Swift package URL is: `https://github.com/ZeeZide/CodeEditor.git`
 
 ### Using it in a SwiftUI App
 
- To use the code editor as a Viewer, simply pass the source code
+To use `CodeEditor` as a source code viewer, simply pass the source code
+as a string:
 ```swift
 struct ContentView: View {
 
@@ -50,7 +51,7 @@ struct ContentView: View {
 }
 ```
 
-If it should act as an actual editor, pass it `Binding`:
+If it should act as an actual editor, pass in a string `Binding`:
 
 ```swift
 struct ContentView: View {
@@ -65,7 +66,8 @@ struct ContentView: View {
 
 ### Languages and Themes
 
-Highlight.js supports more than 180 languages and over 80 different themes.
+[Highlight.js](https://highlightjs.org).
+supports more than 180 languages and over 80 different themes.
 
 The available languages and themes can be accessed using:
 ```swift
@@ -114,6 +116,19 @@ WindowGroup {
 ```
 To persist the size, the `fontSize` binding is available.
 
+
+### Highlightr and Shaper
+
+Based on the excellent [Highlightr](https://github.com/raspu/Highlightr).
+This means that it is using JavaScriptCore as the actual driver. As
+Highlightr says:
+
+> It will never be as fast as a native solution, but it's fast enough to be
+> used on a real time editor.
+
+The editor is similar to (but not exactly the same) the one used by
+[SVG Shaper for SwiftUI](https://zeezide.de/en/products/svgshaper/),
+for its SVG and Swift editor parts.
 
 ### Who
 
