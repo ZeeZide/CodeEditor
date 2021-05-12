@@ -44,13 +44,13 @@ final class UXCodeTextView: UXTextView {
   }
   
   var isAutoPairEnabled    : Bool { return !autoPairCompletion.isEmpty }
-  var autoPairCompletion   : [ ( character : Character, pair : Character) ] = [
-    ( "("  , ")"  ),
-    ( "["  , "]"  ),
-    ( "{"  , "}"  ),
-    ( "\"" , "\"" ),
-    ( "'"  , "'"  ),
-    ( "`"  , "`"  )
+  var autoPairCompletion   : [ String : String ] = [
+    "("  : ")"  ,
+    "["  : "]"  ,
+    "{"  : "}"  ,
+    "\"" : "\"" ,
+    "'"  : "'"  ,
+    "`"  : "`"
   ]
   
   var language : CodeEditor.Language? {
@@ -174,6 +174,45 @@ final class UXCodeTextView: UXTextView {
       }
       super.insertText(String(repeating: " ", count: width),
                        replacementRange: selectedRange())
+    }
+  
+    override func insertText(_ string: Any, replacementRange: NSRange) {
+      super.insertText(string, replacementRange: replacementRange)
+      guard isAutoPairEnabled              else { return }
+      guard let string = string as? String else { return } // TBD: NSAttrString
+      
+      guard let end = autoPairCompletion[string] else { return }
+      super.insertText(end, replacementRange: selectedRange())
+      super.moveBackward(self)
+    }
+  
+    override func deleteBackward(_ sender: Any?) {
+      guard isAutoPairEnabled, !isStartOrEndOfLine else {
+        return super.deleteBackward(sender)
+      }
+      
+      let s             = self.string
+      let selectedRange = swiftSelectedRange
+      guard selectedRange.lowerBound > s.startIndex,
+            selectedRange.lowerBound < s.endIndex else
+      {
+        return super.deleteBackward(sender)
+      }
+      
+      let startIdx  = s.index(before: selectedRange.lowerBound)
+      let startChar = s[startIdx..<selectedRange.lowerBound]
+      guard let expectedEndChar = autoPairCompletion[String(startChar)] else {
+        return super.deleteBackward(sender)
+      }
+      
+      let endIdx    = s.index(after: selectedRange.lowerBound)
+      let endChar   = s[selectedRange.lowerBound..<endIdx]
+      guard expectedEndChar[...] == endChar else {
+        return super.deleteBackward(sender)
+      }
+      
+      super.deleteForward(sender)
+      super.deleteBackward(sender)
     }
   #endif
   
