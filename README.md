@@ -155,10 +155,10 @@ struct ContentView: View {
               .tag(language)
           }
         }
-        Picker("Theme", selection: $theme) {
+        Picker("Theme", selection: $theme) { theme in
           ForEach(CodeEditor.availableThemes) {
-            Text("\($0.rawValue.capitalized)")
-              .tag($0)
+            Text("\(theme.rawValue.capitalized)")
+              .tag(theme)
           }
         }
       }
@@ -168,7 +168,7 @@ struct ContentView: View {
     
       #if os(macOS)
         CodeEditor(source: $source, language: language, theme: theme,
-                   fontSize: .init(get: { CGFloat(fontSize) },
+                   fontSize: .init(get: { CGFloat(fontSize)  },
                                    set: { fontSize = Int($0) }))
           .frame(minWidth: 640, minHeight: 480)
       #else
