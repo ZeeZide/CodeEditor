@@ -59,6 +59,37 @@ import Highlightr
  * Note: The `CodeEditor` doesn't do automatic theme changes if the appearance
  *       changes.
  *
+ * ### Smart Indent and Open/Close Pairing
+ *
+ * Inspired by [NTYSmartTextView](https://github.com/naoty/NTYSmartTextView),
+ * `CodeEditor` now also supports (on macOS):
+ * - smarter indents (preserving the indent of the previous line)
+ * - soft indents (insert a configurable amount of spaces if the user presses tabs)
+ * - auto character pairing, e.g. when entering `{`, the matching `}` will be auto-added
+ *
+ * To enable smart indents, add the `smartIndent` flag, e.g.:
+ *
+ *     CodeEditor(source: $source, language: language,
+ *                flags: [ .selectable, .editable, .smartIndent ])
+ *
+ * It is enabled for editors by default.
+ *
+ * To configure soft indents, use the `indentStyle` parameter, e.g.
+ *
+ *     CodeEditor(source: $source, language: language,
+ *                indentStyle: .softTab(width: 2))
+ *
+ * It defaults to tabs, as per system settings.
+ *
+ * Auto character pairing is automatic based on the language. E.g. there is a set of
+ * defaults for C like languages (e.g. Swift), Python or XML. The defaults can be overridden
+ * using the respective static variable in `CodeEditor`,
+ * or the desired pairing can be set explicitly:
+ *
+ *     CodeEditor(source: $source, language: language,
+ *                autoPairs: [ "{": "}", "<": ">", "'": "'" ])
+ *
+ *
  * ### Font Sizing
  *
  * On macOS the editor supports sizing of the font (using Cmd +/Cmd - and the
