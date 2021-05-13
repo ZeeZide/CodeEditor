@@ -34,6 +34,8 @@ final class UXCodeTextView: UXTextView {
     return textStorage as? CodeAttributedString
   }
   
+  /// If the user starts a newline, the editor automagically adds the same
+  /// whitespace as on the previous line.
   var isSmartIndentEnabled = true
 
   var indentStyle          = CodeEditor.IndentStyle.system {
@@ -43,15 +45,7 @@ final class UXCodeTextView: UXTextView {
     }
   }
   
-  var isAutoPairEnabled    : Bool { return !autoPairCompletion.isEmpty }
-  var autoPairCompletion   : [ String : String ] = [
-    "("  : ")"  ,
-    "["  : "]"  ,
-    "{"  : "}"  ,
-    "\"" : "\"" ,
-    "'"  : "'"  ,
-    "`"  : "`"
-  ]
+  var autoPairCompletion = [ String : String ]()
   
   var language : CodeEditor.Language? {
     set {
@@ -138,7 +132,7 @@ final class UXCodeTextView: UXTextView {
       coordinator?.fontSize = new
       applyNewFontSize(new)
     }
-  #endif
+  #endif // macOS
   
   override func copy(_ sender: Any?) {
     guard let coordinator = delegate as? UXCodeTextViewDelegate else {
@@ -151,6 +145,8 @@ final class UXCodeTextView: UXTextView {
   
   #if os(macOS)
     // MARK: - Smarts as shown in https://github.com/naoty/NTYSmartTextView
+    
+    private var isAutoPairEnabled : Bool { return !autoPairCompletion.isEmpty }
     
     override func insertNewline(_ sender: Any?) {
       guard isSmartIndentEnabled else { return super.insertNewline(sender) }
@@ -214,7 +210,7 @@ final class UXCodeTextView: UXTextView {
       super.deleteForward(sender)
       super.deleteBackward(sender)
     }
-  #endif
+  #endif // macOS
   
   private func reindent(oldStyle: CodeEditor.IndentStyle) {
     // - walk over the lines, strip and count the whitespaces and do something
