@@ -221,6 +221,6 @@ struct ContentView_Previews: PreviewProvider {
 
 ### Who
 
-SVGWebView is brought to you by [ZeeZide](https://zeezide.de).
+CodeEditor is brought to you by [ZeeZide](https://zeezide.de).
 We like feedback, GitHub stars, cool contract work, 
 presumably any form of praise you can think of.
