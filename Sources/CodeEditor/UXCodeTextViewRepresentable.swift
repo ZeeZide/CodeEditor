@@ -15,7 +15,7 @@ import SwiftUI
 #endif
 
 /**
- * Move the gritty details our of the main representable.
+ * Move the gritty details out of the main representable.
  */
 struct UXCodeTextViewRepresentable : UXViewRepresentable {
   
