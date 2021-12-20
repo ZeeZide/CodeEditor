@@ -173,6 +173,8 @@ To persist the size, the `fontSize` binding is available.
      }
  }
  ```
+ When `autoscroll` is `true`, the editor automatically scrolls to the respective
+ cursor position when `selection` is modfied from the outside, i.e. programatically.
 
 ### Highlightr and Shaper
 
