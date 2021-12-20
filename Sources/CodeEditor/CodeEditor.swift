@@ -106,6 +106,31 @@ import Highlightr
  *
  * To persist the binding, the `fontSize` binding is available.
  *
+ * ### Selection and Scrolling
+ *
+ * The selected text can be observed and modified via another `Binding`:
+ *
+ *     struct ContentView: View {
+ *         static private let initialSource = "let a = 42\n"
+ *
+ *         @State private var source = Self.initialSource
+ *         @State private var selection = Self.initialSource.endIndex..<Self.initialSource.endIndex
+ *
+ *         var body: some View {
+ *             CodeEditor(source: $source,
+ *                        selection: $selection,
+ *                        language: .swift,
+ *                        theme: .ocean,
+ *                        autoscroll: false)
+ *             Button("Select All") {
+ *                 selection = source.startIndex..<source.endIndex
+ *             }
+ *         }
+ *     }
+ *
+ * When `autoscroll` is `true`, the editor automatically scrolls to the respective
+ * cursor position when `selection` is modfied from the outside, i.e. programatically.
+ *
  * ### Highlightr and Shaper
  *
  * Based on the excellent [Highlightr](https://github.com/raspu/Highlightr).
@@ -182,6 +207,7 @@ public struct CodeEditor: View {
    * - Parameters:
    *   - source:      A binding to a String that holds the source code to be
    *                  edited (or displayed).
+   *   - selection:   A binding to the selected range of the `source`.
    *   - language:    Optionally set a language (e.g. `.swift`), otherwise
    *                  Highlight.js will attempt to detect the language.
    *   - theme:       The name of the theme to use, defaults to "pojoaque".
@@ -200,17 +226,22 @@ public struct CodeEditor: View {
    *                  language is used.
    *   - inset:       The editor can be inset in the scroll view. Defaults to
    *                  8/8.
+   *   - autoscroll:  If enabled, the editor automatically scrolls to the respective
+   *                  region when the `selection` is changed programatically.
    */
   public init(source      : Binding<String>,
+              selection   : Binding<Range<String.Index>>? = nil,
               language    : Language?            = nil,
               theme       : ThemeName            = .default,
               fontSize    : Binding<CGFloat>?    = nil,
               flags       : Flags                = .defaultEditorFlags,
               indentStyle : IndentStyle          = .system,
               autoPairs   : [ String : String ]? = nil,
-              inset       : CGSize?              = nil)
+              inset       : CGSize?              = nil,
+              autoscroll  : Bool                 = true)
   {
     self.source      = source
+    self.selection   = selection
     self.fontSize    = fontSize
     self.language    = language
     self.themeName   = theme
@@ -220,6 +251,7 @@ public struct CodeEditor: View {
     self.autoPairs   = autoPairs
                     ?? language.flatMap({ CodeEditor.defaultAutoPairs[$0] })
                     ?? [:]
+    self.autoscroll = autoscroll
   }
   
   /**
@@ -268,6 +300,7 @@ public struct CodeEditor: View {
   }
   
   private var source      : Binding<String>
+  private var selection   : Binding<Range<String.Index>>?
   private var fontSize    : Binding<CGFloat>?
   private let language    : Language?
   private let themeName   : ThemeName
@@ -275,16 +308,19 @@ public struct CodeEditor: View {
   private let indentStyle : IndentStyle
   private let autoPairs   : [ String : String ]
   private let inset       : CGSize
+  private let autoscroll  : Bool
 
   public var body: some View {
     UXCodeTextViewRepresentable(source      : source,
+                                selection   : selection,
                                 language    : language,
                                 theme       : themeName,
                                 fontSize    : fontSize,
                                 flags       : flags,
                                 indentStyle : indentStyle,
                                 autoPairs   : autoPairs,
-                                inset       : inset)
+                                inset       : inset,
+                                autoscroll  : autoscroll)
   }
 }
 

@@ -41,17 +41,22 @@ struct UXCodeTextViewRepresentable : UXViewRepresentable {
    *                  the opening character. For example: `[ "<": ">" ]` would
    *                  automatically insert the closing ">" if the user enters
    *                  "<".
+   *   - autoscroll:  If enabled, the editor automatically scrolls to the respective
+   *                  region when the `selection` is changed programatically.
    */
   public init(source      : Binding<String>,
+              selection   : Binding<Range<String.Index>>?,
               language    : CodeEditor.Language?,
               theme       : CodeEditor.ThemeName,
               fontSize    : Binding<CGFloat>?,
               flags       : CodeEditor.Flags,
               indentStyle : CodeEditor.IndentStyle,
               autoPairs   : [ String : String ],
-              inset       : CGSize)
+              inset       : CGSize,
+              autoscroll  : Bool)
   {
     self.source      = source
+    self.selection = selection
     self.fontSize    = fontSize
     self.language    = language
     self.themeName   = theme
@@ -59,9 +64,11 @@ struct UXCodeTextViewRepresentable : UXViewRepresentable {
     self.indentStyle = indentStyle
     self.autoPairs   = autoPairs
     self.inset       = inset
+    self.autoscroll = autoscroll
   }
     
   private var source      : Binding<String>
+  private var selection   : Binding<Range<String.Index>>?
   private var fontSize    : Binding<CGFloat>?
   private let language    : CodeEditor.Language?
   private let themeName   : CodeEditor.ThemeName
@@ -69,6 +76,7 @@ struct UXCodeTextViewRepresentable : UXViewRepresentable {
   private let indentStyle : CodeEditor.IndentStyle
   private let inset       : CGSize
   private let autoPairs   : [ String : String ]
+  private let autoscroll  : Bool
   
   
   // MARK: - TextView Delegate  Coordinator
@@ -92,6 +100,28 @@ struct UXCodeTextViewRepresentable : UXViewRepresentable {
         return
       }
       parent.source.wrappedValue = textView.string
+    }
+      
+    public func textViewDidChangeSelection(_ notification: Notification) {
+      guard let textView = notification.object as? UXTextView else {
+        assertionFailure("unexpected notification object")
+        return
+      }
+      
+      guard let selection = parent.selection else {
+        return
+      }
+
+      guard let range = Range(textView.selectedRange(), in: textView.string) else {
+        assertionFailure("could not convert NSRange to Range")
+        return
+      }
+        
+      DispatchQueue.main.async {
+        if selection.wrappedValue != range {
+          selection.wrappedValue = range
+        }
+      }
     }
     
     var allowCopy: Bool {
@@ -125,6 +155,18 @@ struct UXCodeTextViewRepresentable : UXViewRepresentable {
       else {
         assertionFailure("no text storage?")
         textView.string = source.wrappedValue
+      }
+    }
+    
+    if let selection = selection {
+      let range = NSRange(selection.wrappedValue, in: textView.string)
+      
+      if range != textView.selectedRange() {
+        textView.setSelectedRange(range)
+        
+        if autoscroll {
+          textView.scrollRangeToVisible(range)
+        }
       }
     }
     
@@ -194,23 +236,27 @@ struct UXCodeTextViewRepresentable_Previews: PreviewProvider {
   static var previews: some View {
     
     UXCodeTextViewRepresentable(source      : .constant("let a = 5"),
+                                selection   : nil,
                                 language    : nil,
                                 theme       : .pojoaque,
                                 fontSize    : nil,
                                 flags       : [ .selectable ],
                                 indentStyle : .system,
                                 autoPairs   : [:],
-                                inset       : .init(width: 8, height: 8))
+                                inset       : .init(width: 8, height: 8),
+                                autoscroll  : false)
       .frame(width: 200, height: 100)
     
     UXCodeTextViewRepresentable(source: .constant("let a = 5"),
+                                selection   : nil,
                                 language    : .swift,
                                 theme       : .pojoaque,
                                 fontSize    : nil,
                                 flags       : [ .selectable ],
                                 indentStyle : .system,
                                 autoPairs   : [:],
-                                inset       : .init(width: 8, height: 8))
+                                inset       : .init(width: 8, height: 8),
+                                autoscroll  : false)
       .frame(width: 200, height: 100)
     
     UXCodeTextViewRepresentable(
@@ -220,13 +266,15 @@ struct UXCodeTextViewRepresentable_Previews: PreviewProvider {
         \bye
         """#
       ),
+      selection   : nil,
       language    : .tex,
       theme       : .pojoaque,
       fontSize    : nil,
       flags       : [ .selectable ],
       indentStyle : .system,
       autoPairs   : [:],
-      inset       : .init(width: 8, height: 8)
+      inset       : .init(width: 8, height: 8),
+      autoscroll  : false
     )
     .frame(width: 540, height: 200)
   }
