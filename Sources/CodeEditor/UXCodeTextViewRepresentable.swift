@@ -77,7 +77,14 @@ struct UXCodeTextViewRepresentable : UXViewRepresentable {
   private let inset       : CGSize
   private let autoPairs   : [ String : String ]
   private let autoscroll  : Bool
-  
+
+  // The inner `value` is true, exactly when execution is inside
+  // the `updateTextView(_:)` method. The `Coordinator` can use this
+  // value to guard against update cycles.
+  // This needs to be a `State`, as the `UXCodeTextViewRepresentable`
+  // might be destructed and recreated in between calls to `makeCoordinator()`
+  // and `updateTextView(_:)`.
+  @State private var isCurrentlyUpdatingView = ReferenceTypeBool(value: false)
   
   // MARK: - TextView Delegate  Coordinator
     
@@ -103,6 +110,14 @@ struct UXCodeTextViewRepresentable : UXViewRepresentable {
     }
       
     public func textViewDidChangeSelection(_ notification: Notification) {
+      // This function may be called as a consequence of calling
+      // `textView.setSelectedRange(_:)` in UXCodeTextViewRepresentable/updateTextView(_:)`.
+      // Since this function might update the `parent.selection` `Binding`, which in
+      // turn might update a `State`, this would lead to undefined behavior.
+      guard !parent.isCurrentlyUpdatingView.value else {
+        return
+      }
+      
       guard let textView = notification.object as? UXTextView else {
         assertionFailure("unexpected notification object")
         return
@@ -117,10 +132,8 @@ struct UXCodeTextViewRepresentable : UXViewRepresentable {
         return
       }
         
-      DispatchQueue.main.async {
-        if selection.wrappedValue != range {
-          selection.wrappedValue = range
-        }
+      if selection.wrappedValue != range {
+        selection.wrappedValue = range
       }
     }
     
@@ -135,6 +148,11 @@ struct UXCodeTextViewRepresentable : UXViewRepresentable {
   }
   
   private func updateTextView(_ textView: UXCodeTextView) {
+    isCurrentlyUpdatingView.value = true
+    defer {
+      isCurrentlyUpdatingView.value = false
+    }
+      
     if let binding = fontSize {
       textView.applyNewTheme(themeName, andFontSize: binding.wrappedValue)
     }
@@ -229,6 +247,18 @@ struct UXCodeTextViewRepresentable : UXViewRepresentable {
       updateTextView(textView)
     }
   #endif // iOS
+}
+
+extension UXCodeTextViewRepresentable {
+  // A wrapper around a `Bool` that enables updating
+  // the wrapped value during `View` renders.
+  private class ReferenceTypeBool {
+    var value: Bool
+      
+    init(value: Bool) {
+      self.value = value
+    }
+  }
 }
 
 struct UXCodeTextViewRepresentable_Previews: PreviewProvider {
