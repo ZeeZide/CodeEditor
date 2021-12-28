@@ -13,7 +13,7 @@ jobs:
       - name: Select latest available Xcode
         uses: maxim-lobanov/setup-xcode@v1.2.1
         with:
-          xcode-version: 12.2
+          xcode-version: 13.2.1
       - name: Checkout Repository
         uses: actions/checkout@v2
       - name: Build Swift Debug Package
