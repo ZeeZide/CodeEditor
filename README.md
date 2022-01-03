@@ -150,6 +150,32 @@ WindowGroup {
 To persist the size, the `fontSize` binding is available.
 
 
+ ### Selection and Scrolling
+ 
+ The selected text can be observed and modified via another `Binding`:
+ 
+ ```swift
+  struct ContentView: View {
+     static private let initialSource = "let a = 42\n"
+
+     @State private var source = Self.initialSource
+     @State private var selection = Self.initialSource.endIndex..<Self.initialSource.endIndex
+
+     var body: some View {
+         CodeEditor(source: $source,
+                    selection: $selection,
+                    language: .swift,
+                    theme: .ocean,
+                    autoscroll: false)
+         Button("Select All") {
+             selection = source.startIndex..<source.endIndex
+         }
+     }
+ }
+ ```
+ When `autoscroll` is `true`, the editor automatically scrolls to the respective
+ cursor position when `selection` is modfied from the outside, i.e. programatically.
+
 ### Highlightr and Shaper
 
 Based on the excellent [Highlightr](https://github.com/raspu/Highlightr).
