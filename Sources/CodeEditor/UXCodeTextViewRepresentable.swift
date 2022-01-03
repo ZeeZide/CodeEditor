@@ -96,7 +96,7 @@ struct UXCodeTextViewRepresentable : UXViewRepresentable {
       }    
     #elseif os(iOS)
       public func textViewDidChange(_ textView: UITextView) {
-        parnt.source.wrappedValue = textView.string
+        parent.source.wrappedValue = textView.string
       }
     #else
       #error("Unsupported OS")
