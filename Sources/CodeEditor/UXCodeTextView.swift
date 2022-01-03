@@ -264,7 +264,7 @@ protocol UXCodeTextViewDelegate: UXTextViewDelegate {
 
 extension UXTextView {
   
-  fileprivate var swiftSelectedRange : Range<String.Index> {
+  var swiftSelectedRange : Range<String.Index> {
     let s = self.string
     guard !s.isEmpty else { return s.startIndex..<s.startIndex }
     #if os(macOS)

@@ -107,17 +107,17 @@ struct UXCodeTextViewRepresentable : UXViewRepresentable {
           assertionFailure("unexpected notification object")
           return
         }
-        parent.source.wrappedValue = textView.string
+        textViewDidChange(textView: textView)
       }    
     #elseif os(iOS)
       public func textViewDidChange(_ textView: UITextView) {
-        parent.source.wrappedValue = textView.string
+        textViewDidChange(textView: textView)
       }
     #else
       #error("Unsupported OS")
     #endif
       
-    public func textViewDidChangeSelection(_ notification: Notification) {
+    private func textViewDidChange(textView: UXTextView) {
       // This function may be called as a consequence of calling
       // `textView.setSelectedRange(_:)` in UXCodeTextViewRepresentable/updateTextView(_:)`.
       // Since this function might update the `parent.selection` `Binding`, which in
@@ -126,8 +126,32 @@ struct UXCodeTextViewRepresentable : UXViewRepresentable {
         return
       }
       
-      guard let textView = notification.object as? UXTextView else {
-        assertionFailure("unexpected notification object")
+      parent.source.wrappedValue = textView.string
+    }
+      
+    #if os(macOS)
+      public func textViewDidChangeSelection(_ notification: Notification) {
+        guard let textView = notification.object as? UXTextView else {
+          assertionFailure("unexpected notification object")
+          return
+        }
+        
+        textViewDidChangeSelection(textView: textView as! UXCodeTextView)
+      }
+    #elseif os(iOS)
+      public func textViewDidChangeSelection(_ textView: UITextView) {
+        textViewDidChangeSelection(textView: textView as! UXCodeTextView)
+      }
+    #else
+      #error("Unsupported OS")
+    #endif
+      
+    private func textViewDidChangeSelection(textView: UXCodeTextView) {
+      // This function may be called as a consequence of calling
+      // `textView.setSelectedRange(_:)` in UXCodeTextViewRepresentable/updateTextView(_:)`.
+      // Since this function might update the `parent.selection` `Binding`, which in
+      // turn might update a `State`, this would lead to undefined behavior.
+      guard !parent.isCurrentlyUpdatingView.value else {
         return
       }
       
@@ -135,11 +159,8 @@ struct UXCodeTextViewRepresentable : UXViewRepresentable {
         return
       }
 
-      guard let range = Range(textView.selectedRange(), in: textView.string) else {
-        assertionFailure("could not convert NSRange to Range")
-        return
-      }
-        
+      let range = textView.swiftSelectedRange
+      
       if selection.wrappedValue != range {
         selection.wrappedValue = range
       }
@@ -185,13 +206,20 @@ struct UXCodeTextViewRepresentable : UXViewRepresentable {
     }
     
     if let selection = selection {
-      let range = NSRange(selection.wrappedValue, in: textView.string)
+      let range = selection.wrappedValue
       
-      if range != textView.selectedRange() {
-        textView.setSelectedRange(range)
+      if range != textView.swiftSelectedRange {
+        let nsrange = NSRange(range, in: textView.string)
+        #if os(macOS)
+          textView.setSelectedRange(nsrange)
+        #elseif os(iOS)
+          textView.selectedRange = nsrange
+        #else
+          #error("Unsupported OS")
+        #endif
         
         if autoscroll {
-          textView.scrollRangeToVisible(range)
+          textView.scrollRangeToVisible(nsrange)
         }
       }
     }
