@@ -86,18 +86,20 @@ struct UXCodeTextViewRepresentable : UXViewRepresentable {
       self.parent = parent
     }
     
-    public func textDidChange(_ notification: Notification) {
-      guard let textView = notification.object as? UXTextView else {
-        assertionFailure("unexpected notification object")
-        return
+    #if os(macOS)
+      public func textDidChange(_ notification: Notification) {
+        guard let textView = notification.object as? UXTextView else {
+          assertionFailure("unexpected notification object")
+          return
+        }
+        parent.source.wrappedValue = textView.string
+      }    
+    #elseif os(iOS)
+      public func textViewDidChange(_ textView: UITextView) {
+        parnt.source.wrappedValue = textView.string
       }
-      parent.source.wrappedValue = textView.string
-    }
-    
-    #if os(iOS)
-    public func textViewDidChange(_ textView: UITextView) {
-      parent.source.wrappedValue = textView.string
-    }
+    #else
+      #error("Unsupported OS")
     #endif
     
     var allowCopy: Bool {
