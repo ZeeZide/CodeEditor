@@ -94,6 +94,12 @@ struct UXCodeTextViewRepresentable : UXViewRepresentable {
       parent.source.wrappedValue = textView.string
     }
     
+    #if os(iOS)
+    public func textViewDidChange(_ textView: UITextView) {
+      parent.source.wrappedValue = textView.string
+    }
+    #endif
+    
     var allowCopy: Bool {
       return parent.flags.contains(.selectable)
           || parent.flags.contains(.editable)
