@@ -118,10 +118,11 @@ struct UXCodeTextViewRepresentable : UXViewRepresentable {
     #endif
       
     private func textViewDidChange(textView: UXTextView) {
-      // This function may be called as a consequence of calling
-      // `textView.setSelectedRange(_:)` in UXCodeTextViewRepresentable/updateTextView(_:)`.
-      // Since this function might update the `parent.selection` `Binding`, which in
+      // This function may be called as a consequence of updating the text string
+      //  in UXCodeTextViewRepresentable/updateTextView(_:)`.
+      // Since this function might update the `parent.source` `Binding`, which in
       // turn might update a `State`, this would lead to undefined behavior.
+      // (Changing a `State` during a `View` update is not permitted).
       guard !parent.isCurrentlyUpdatingView.value else {
         return
       }
@@ -147,10 +148,11 @@ struct UXCodeTextViewRepresentable : UXViewRepresentable {
     #endif
       
     private func textViewDidChangeSelection(textView: UXCodeTextView) {
-      // This function may be called as a consequence of calling
-      // `textView.setSelectedRange(_:)` in UXCodeTextViewRepresentable/updateTextView(_:)`.
+      // This function may be called as a consequence of updating the selected
+      // range in UXCodeTextViewRepresentable/updateTextView(_:)`.
       // Since this function might update the `parent.selection` `Binding`, which in
       // turn might update a `State`, this would lead to undefined behavior.
+      // (Changing a `State` during a `View` update is not permitted).
       guard !parent.isCurrentlyUpdatingView.value else {
         return
       }
