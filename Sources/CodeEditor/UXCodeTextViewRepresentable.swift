@@ -196,6 +196,7 @@ struct UXCodeTextViewRepresentable : UXViewRepresentable {
     textView.isSmartIndentEnabled = flags.contains(.smartIndent)
     textView.autoPairCompletion   = autoPairs
     textView.autocapitalizationType = .none
+    textView.smartDashesType = .no
 
     if source.wrappedValue != textView.string {
       if let textStorage = textView.codeTextStorage {
