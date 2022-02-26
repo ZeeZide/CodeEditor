@@ -195,7 +195,8 @@ struct UXCodeTextViewRepresentable : UXViewRepresentable {
     textView.indentStyle          = indentStyle
     textView.isSmartIndentEnabled = flags.contains(.smartIndent)
     textView.autoPairCompletion   = autoPairs
-        
+    textView.autocapitalizationType = .none
+
     if source.wrappedValue != textView.string {
       if let textStorage = textView.codeTextStorage {
         textStorage.replaceCharacters(in   : NSMakeRange(0, textStorage.length),
