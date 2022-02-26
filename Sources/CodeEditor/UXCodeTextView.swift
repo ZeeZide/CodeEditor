@@ -147,8 +147,6 @@ final class UXCodeTextView: UXTextView {
   #if os(iOS)
     override func insertText(_ text: String) {
         super.insertText(text)
-        print("text", text)
-        print(autoPairCompletion[text])
         guard isAutoPairEnabled              else { return }       
         guard let end = autoPairCompletion[text] else { return }
         let prev = self.selectedRange
