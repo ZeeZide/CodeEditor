@@ -272,6 +272,9 @@ struct UXCodeTextViewRepresentable : UXViewRepresentable {
       #if os(iOS)
       textView.autocapitalizationType = .none
       textView.smartDashesType = .no
+      textView.autocorrectionType = .no
+      textView.spellCheckingType = .no
+      textView.smartQuotesType = .no
       #endif
       updateTextView(textView)
       return textView
