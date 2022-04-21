@@ -99,6 +99,11 @@ final class UXCodeTextView: UXTextView {
   // MARK: - Actions
 
   #if os(macOS)
+    override func changeColor(_ sender: Any?) {
+      // https://github.com/ZeeZide/CodeEditor/issues/12
+      // Reject user based color changes.
+    }
+  
     override func changeFont(_ sender: Any?) {
       let coordinator = delegate as? UXCodeTextViewDelegate
       
