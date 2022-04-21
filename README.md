@@ -214,8 +214,8 @@ struct ContentView: View {
               .tag(language)
           }
         }
-        Picker("Theme", selection: $theme) { theme in
-          ForEach(CodeEditor.availableThemes) {
+        Picker("Theme", selection: $theme) {
+          ForEach(CodeEditor.availableThemes) { theme in
             Text("\(theme.rawValue.capitalized)")
               .tag(theme)
           }
