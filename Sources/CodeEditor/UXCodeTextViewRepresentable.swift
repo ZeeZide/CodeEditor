@@ -3,7 +3,7 @@
 //  CodeEditor
 //
 //  Created by Helge Heß.
-//  Copyright © 2021 ZeeZide GmbH. All rights reserved.
+//  Copyright © 2021-2023 ZeeZide GmbH. All rights reserved.
 //
 
 import SwiftUI
@@ -56,7 +56,7 @@ struct UXCodeTextViewRepresentable : UXViewRepresentable {
               autoscroll  : Bool)
   {
     self.source      = source
-    self.selection = selection
+    self.selection   = selection
     self.fontSize    = fontSize
     self.language    = language
     self.themeName   = theme
@@ -64,7 +64,7 @@ struct UXCodeTextViewRepresentable : UXViewRepresentable {
     self.indentStyle = indentStyle
     self.autoPairs   = autoPairs
     self.inset       = inset
-    self.autoscroll = autoscroll
+    self.autoscroll  = autoscroll
   }
     
   private var source      : Binding<String>
