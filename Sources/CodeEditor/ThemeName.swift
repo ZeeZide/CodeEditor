@@ -3,13 +3,13 @@
 //  CodeEditor
 //
 //  Created by Helge Heß.
-//  Copyright © 2021 ZeeZide GmbH. All rights reserved.
+//  Copyright © 2021-2024 ZeeZide GmbH. All rights reserved.
 //
 
 public extension CodeEditor {
   
   @frozen
-  struct ThemeName: TypedString {
+  struct ThemeName: TypedString, Sendable {
     
     public let rawValue : String
     
@@ -20,14 +20,15 @@ public extension CodeEditor {
 
 public extension CodeEditor.ThemeName {
 
-  static var `default` = pojoaque
+  @inlinable static var `default` : Self { pojoaque }
+  @inlinable static var pojoaque  : Self { Self(rawValue: "pojoaque") }
+  @inlinable static var agate     : Self { Self(rawValue: "agate") }
+  @inlinable static var ocean     : Self { Self(rawValue: "ocean") }
   
-  static var pojoaque  = CodeEditor.ThemeName(rawValue: "pojoaque")
-  static var agate     = CodeEditor.ThemeName(rawValue: "agate")
-  static var ocean     = CodeEditor.ThemeName(rawValue: "ocean")
-  
-  static var atelierSavannaLight =
-               CodeEditor.ThemeName(rawValue: "atelier-savanna-light")
-  static var atelierSavannaDark =
-               CodeEditor.ThemeName(rawValue: "atelier-savanna-dark")
+  @inlinable
+  static var atelierSavannaLight : Self {
+               Self(rawValue: "atelier-savanna-light") }
+  @inlinable
+  static var atelierSavannaDark : Self {
+               Self(rawValue: "atelier-savanna-dark") }
 }
