@@ -5,9 +5,10 @@
 </h2>
 
 ![SwiftUI](https://img.shields.io/badge/SwiftUI-orange.svg)
-![Swift5.3](https://img.shields.io/badge/swift-5.3-blue.svg)
+![Swift5](https://img.shields.io/badge/swift-5-blue.svg)
 ![macOS](https://img.shields.io/badge/os-macOS-green.svg?style=flat)
 ![iOS](https://img.shields.io/badge/os-iOS-green.svg?style=flat)
+![visionOS](https://img.shields.io/badge/os-visionOS-green.svg?style=flat)
 [![Build and Test](https://github.com/ZeeZide/CodeEditor/actions/workflows/swift.yml/badge.svg?branch=main)](https://github.com/ZeeZide/CodeEditor/actions/workflows/swift.yml)
 
 A [SwiftUI](https://developer.apple.com/xcode/swiftui/)
