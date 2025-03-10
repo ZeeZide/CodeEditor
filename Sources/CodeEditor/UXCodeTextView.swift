@@ -7,6 +7,7 @@
 //
 
 import Highlightr
+import SwiftUI
 
 #if os(macOS)
   import AppKit
@@ -30,7 +31,7 @@ final class UXCodeTextView: UXTextView {
   
   fileprivate let highlightr = Highlightr()
     
-    var customBackgroundColor: NSColor? = nil
+    var customBackgroundColor: Color? = nil
   
   private var hlTextStorage : CodeAttributedString? {
     return textStorage as? CodeAttributedString
@@ -247,7 +248,12 @@ final class UXCodeTextView: UXTextView {
     guard let highlightr = highlightr,
           highlightr.setTheme(to: newTheme.rawValue),
           let theme      = highlightr.theme else { return false }
-    self.backgroundColor = customBackgroundColor ?? theme.themeBackgroundColor
+      let bgColor = customBackgroundColor ?? Color(theme.themeBackgroundColor)
+      #if os(macOS)
+      self.backgroundColor = bgColor.nsColor()
+      #else
+        self.backgroundColor = bgColor.uiColor()
+      #endif
     if let font = theme.codeFont, font !== self.font { self.font = font }
     return true
   }
@@ -266,7 +272,12 @@ final class UXCodeTextView: UXTextView {
     theme.codeFont       = theme.codeFont?      .withSize(newSize)
     theme.boldCodeFont   = theme.boldCodeFont?  .withSize(newSize)
     theme.italicCodeFont = theme.italicCodeFont?.withSize(newSize)
-    self.backgroundColor = customBackgroundColor ?? theme.themeBackgroundColor
+    let bgColor = customBackgroundColor ?? Color(theme.themeBackgroundColor)
+    #if os(macOS)
+      self.backgroundColor = bgColor.nsColor()
+    #else
+      self.backgroundColor = bgColor.uiColor()
+    #endif
     if let font = theme.codeFont, font !== self.font { self.font = font }
     return true
   }
@@ -343,3 +354,43 @@ extension UXTextView {
     var codeTextStorage : NSTextStorage? { return textStorage }
   }
 #endif // iOS
+
+extension Color {
+    #if os(iOS)
+
+      func uiColor() -> UIColor {
+          
+          if #available(iOS 14.0, *) {
+              return UIColor(self)
+          }
+          
+          let components = self.components()
+          return UIColor(red: components.r, green: components.g, blue: components.b, alpha: components.a)
+      }
+    #else
+      func nsColor() -> NSColor {
+              
+          if #available(macOS 11.0, *) {
+              return NSColor(self)
+          }
+          let components = self.components()
+          return NSColor(red: components.r, green: components.g, blue: components.b, alpha: components.a)
+      }
+
+    #endif
+    private func components() -> (r: CGFloat, g: CGFloat, b: CGFloat, a: CGFloat) {
+        
+        let scanner = Scanner(string: self.description.trimmingCharacters(in: CharacterSet.alphanumerics.inverted))
+        var hexNumber: UInt64 = 0
+        var r: CGFloat = 0.0, g: CGFloat = 0.0, b: CGFloat = 0.0, a: CGFloat = 0.0
+        
+        let result = scanner.scanHexInt64(&hexNumber)
+        if result {
+            r = CGFloat((hexNumber & 0xff000000) >> 24) / 255
+            g = CGFloat((hexNumber & 0x00ff0000) >> 16) / 255
+            b = CGFloat((hexNumber & 0x0000ff00) >> 8) / 255
+            a = CGFloat(hexNumber & 0x000000ff) / 255
+        }
+        return (r, g, b, a)
+    }
+}
